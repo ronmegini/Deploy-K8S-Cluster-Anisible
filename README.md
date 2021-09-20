@@ -33,6 +33,7 @@ vars/main.yml:
 - reinstall: false
 Default value for reinstall is false.
 If user tried in the past to install kubernetes with kubeadm he should override this value to true in playbook.
+
 ONLY FOR Cri-O (not needed for docker)
 - OS
 the name of the operating system you use and version of it in upper case letters.
