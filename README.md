@@ -55,7 +55,7 @@ playbook.yml:
 License
 -------
 
-Opensource for life!
+Open Source for everyone :)
 
 Author Information
 ------------------
