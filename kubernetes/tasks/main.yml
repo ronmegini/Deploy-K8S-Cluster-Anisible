@@ -1,0 +1,24 @@
+---
+# Main tasks file for kubernetes
+- name: Configure Network
+  include_tasks: network.yml
+- name: Disable Swap
+  include_tasks: swap.yml
+- name: Install Docker
+  include_tasks: docker.yml
+- name: Download Kubeadm
+  include_tasks: kubeadm.yml
+- name: remove configuration from previous installation
+  include_tasks: remove_old.yml
+  when: reinstall == true and ansible_hostname == 'master'
+- name: Create Cluster
+  include_tasks: create_cluster.yml
+  when: ansible_hostname == 'master'
+- name: Add nodes
+  include_tasks: add_nodes.yml
+- name: Config Kubectl
+  include_tasks: kubectl.yml
+  when: ansible_hostname == 'master'
+- name: Deploy pod network
+  include_tasks: pod_network.yml
+  when: ansible_hostname == 'master'

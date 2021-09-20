@@ -1,0 +1,35 @@
+#This task install kubeadm and all the dependecies
+
+#Install kubeadm's dependecies
+- name: dependecies for kubeadm 
+  apt:
+   update_cache: yes 
+   pkg:
+   - apt-transport-https
+   - ca-certificates
+
+#Config apt's package list and keys to meet kubeadm
+- name: add keys and packages to apt
+  shell: "{{ item }}"
+  with_items:
+  - curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+#Install kubeadm, kubectl and kublet
+- name: install kubeadm, kubectl and kublet
+  apt:
+   update_cache: yes 
+   pkg:
+   - kubelet
+   - kubeadm
+   - kubectl
+
+#Make sure version of kubeadm, kubectl and kublet NOT update
+- name: Hold kubeadm, kubectl and kublet
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+  - kubelet
+  - kubeadm
+  - kubectl

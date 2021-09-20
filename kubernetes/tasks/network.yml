@@ -1,0 +1,39 @@
+#make sure br_netfilter is enable
+- name: enable kernel module
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+- name: Creating module file
+  copy:
+    dest: "/etc/modules-load.d/k8s.conf"
+    content: |
+      br_netfilter
+
+#enable iptable to see bridge traffic
+- name: enable iptable v6 to see bridge traffic
+  ansible.posix.sysctl:
+    name: "{{item}}"
+    value: '1'
+    sysctl_file: /etc/sysctl.d/k8s.conf
+    reload: yes
+  with_items:
+  - net.bridge.bridge-nf-call-ip6tables
+  - net.bridge.bridge-nf-call-iptables
+  - net/bridge/bridge-nf-call-arptables
+
+- name: Install net tools
+  apt:
+    pkg:
+    - ebtables
+    - ethtool
+
+#update /etc/hosts file
+- name: update /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{item}}"
+    insertbefore: EOF
+  with_items:
+  - 192.168.64.6 master
+  - 192.168.64.7 node1
+  - 192.168.64.8 node2

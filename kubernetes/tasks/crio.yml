@@ -1,0 +1,57 @@
+#This task preconfig, install and config cri-o runtime
+
+#Update apt package manager
+- name: clean, upgrade and update apt packages
+  become: true
+  apt:
+    autoclean: yes
+    upgrade: yes
+    update_cache: yes
+
+#Install curl & gnupg2 & libseccomp2 & libseccomp-dev
+- name: install curl & gnupg2 & libseccomp2
+  become: true
+  apt:
+    pkg:
+    - curl
+    - gnupg2
+    - libseccomp2
+    - libseccomp-dev
+
+#Preconfiguration for cri-o installation
+- name: Add cri-o to apt package list
+  shell: "{{ item }}"
+  with_items:
+  - echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+  - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{OS}}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+  - mkdir -p /etc/apt/sources.list.d/
+  - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{VERSION}}/{{OS}}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:1.20.5.list
+  - curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{VERSION}}/{{OS}}/Release.key | apt-key add -
+  - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{OS}}/Release.key | apt-key add -
+  - apt-get -t buster-backports install libseccomp-dev -y
+
+#Update apt package manager
+- name: clean, upgrade and update apt packages
+  apt:
+   update_cache: yes 
+
+#Install cri-o and runc
+- name: install crio
+  apt:
+    pkg:
+    - cri-o
+    - cri-o-runc
+
+#Set runc path
+- name: copy runc conf file
+  copy:
+    src: ../files/01-crio-runc.conf
+    dest: /etc/crio/crio.conf.d/01-crio-runc.conf
+
+#Install cri-o and runc
+- name: remove crio
+  apt:
+    pkg:
+    - cri-o
+    - cri-o-runc
+    state: absent

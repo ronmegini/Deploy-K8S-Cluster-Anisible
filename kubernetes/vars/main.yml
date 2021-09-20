@@ -1,0 +1,8 @@
+---
+
+#default value for reinstall
+reinstall: false
+
+#vars for Cri-O installation
+OS: Debian_10
+VERSION: 1.21

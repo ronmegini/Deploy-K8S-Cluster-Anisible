@@ -1,0 +1,12 @@
+#This task add new nodes to the cluster
+
+#Genarate joins command by using kubeadm. Register output to 'join_command' hostvar.
+- name: Genarate joins command
+  shell: kubeadm token create --print-join-command
+  register: join_command
+  when: ansible_hostname == 'master'
+
+#Run join command from master's host var 'join_command' (access the first host in hosts file)
+- name: Join Nodes
+  shell: "{{hostvars[groups['kubernetes'][0]]['join_command']['stdout']}}"
+  when: ansible_hostname != 'master'

@@ -1,0 +1,77 @@
+# remove older versions of docker
+- name: remove old versions
+  apt:
+    pkg:
+    - docker
+    - docker-engine
+    - docker.io
+    - containerd
+    - runc
+    state: absent
+
+#Update apt package manager
+- name: clean, upgrade and update apt packages
+  become: true
+  apt:
+    autoclean: yes
+    upgrade: yes
+    update_cache: yes
+
+#Install curl & gnupg2 & libseccomp2 & libseccomp-dev
+- name: install docker dependencies
+  apt:
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+
+# Check if docker already added
+- name: Check that the somefile.conf exists
+  stat:
+    path: /usr/share/keyrings/docker-archive-keyring.gpg
+  register: docker_gpg_stat
+
+# Add docker and gpg key to apt. Execute only if gpg key not already exist.
+- name: Add docker package and gpg key to apt.
+  shell: "{{ item }}"
+  with_items:
+  - curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  - echo "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  when: not docker_gpg_stat.stat.exists
+
+#Update apt package manager cache
+- name: update apt packages cache
+  become: true
+  apt:
+    update_cache: yes
+
+#Install docker
+- name: install docker
+  apt:
+    pkg:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+#Copy docker config file that change configuration from cgroupfs to systemd
+- name: Copy docker config file
+  ansible.builtin.copy:
+    src: ../files/daemon.json
+    dest: /etc/docker/daemon.json
+
+#Create docker service directory
+- name: Create docker service directory
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+  register: dockerConfChanged
+
+#Reload new configuration to docker
+- name: Reload docker service
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: docker
+  when: dockerConfChanged is changed

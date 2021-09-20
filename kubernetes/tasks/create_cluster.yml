@@ -1,0 +1,9 @@
+#This task create the cluster by using kubeadm tool
+
+- name: initialize the cluster
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16
+  register: result
+  until: result.stdout.find("Your Kubernetes control-plane has initialized successfully!") != -1
+  retries: 1
+  delay: 20
+  when: ansible_hostname == 'master'

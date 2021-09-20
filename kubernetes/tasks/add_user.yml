@@ -1,0 +1,25 @@
+- name: Make sure we have a 'k8sadmingrp' group
+  group:
+    name: k8sadmingrp
+    state: present
+
+- name: Allow 'k8sadmingrp' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%k8sadmingrp'
+    line: '%k8sadmingrp ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Add sudoers users to 'k8sadmingrp' group
+  user:
+    name=k8sadmin
+    groups=k8sadmingrp
+    append=yes
+    state=present
+    createhome=yes
+
+- name: Set up authorized keys for the k8sadmin user
+  authorized_key: user=k8sadmin key="{{item}}"
+  with_file:
+    - /Users/ronmegini/.ssh/id_rsa.pub

@@ -1,0 +1,21 @@
+#This task configure kubectl to work with k8sadmin user
+
+#Create .kune directory
+- name: Create directory '.kube'
+  file:
+    path: '/home/{{ansible_user}}/.kube'
+    state: directory
+
+#Copy config file
+- name: Copy config file
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: '/home/{{ansible_user}}/.kube/config'
+    remote_src: true
+
+#Change config file's permissions
+- name: Change config file's permissions
+  ansible.builtin.file:
+    path: '/home/{{ansible_user}}/.kube/config'
+    owner: '{{ansible_user}}'
+    group: '{{ansible_user}}'

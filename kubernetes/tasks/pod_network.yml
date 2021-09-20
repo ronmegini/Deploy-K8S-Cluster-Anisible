@@ -1,0 +1,6 @@
+#deploy flannel sdn network for pod network on the cluster
+
+#deploy flannel sdn network
+- name: Enable pod network
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  when: ansible_hostname="master"
