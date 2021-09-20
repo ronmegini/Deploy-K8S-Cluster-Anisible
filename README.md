@@ -1,7 +1,7 @@
-Role Name
+k8s-cluster-deploy Role
 =========
 
-This role deploy one-master Kubernetes cluster with Docker runtime on apt based linux.
+This ansible role deploy one-master Kubernetes cluster with Docker runtime on apt based linux.
 (deploy Cri-O as run time currently in development)
 
 Requirements
