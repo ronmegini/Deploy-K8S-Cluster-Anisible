@@ -7,8 +7,8 @@ This ansible role deploy one-master Kubernetes cluster with Docker runtime on ap
 Requirements
 ------------
 
-- apt based linux (fully checked on debian 10).
-- All kinds of firewall down.
+- apt based linux (fully checked on debian 10)
+- All kinds of firewall down
 
 Inventory File
 --------------
